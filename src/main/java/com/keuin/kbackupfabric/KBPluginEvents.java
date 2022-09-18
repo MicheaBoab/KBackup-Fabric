@@ -43,7 +43,7 @@ public final class KBPluginEvents implements ModInitializer, ServerStartCallback
 
         // Buggy: this does not work
         if (!(server instanceof MinecraftDedicatedServer))
-            throw new RuntimeException("KBackup is a server-side-only plugin. Please do not use it in client-side.");
+            throw new RuntimeException("KBackup 为服务器端插件,请勿在客户端使用.");
 
         // Bind fabric events
         OnPlayerConnect.ON_PLAYER_CONNECT.register((connection, player)
@@ -73,9 +73,9 @@ public final class KBPluginEvents implements ModInitializer, ServerStartCallback
 
                 // Print metadata
                 MetadataHolder.setMetadata(metadata);
-                PrintUtil.info("Restored world from a previous backup:");
-                PrintUtil.info("Backup Name: " + metadata.getBackupName());
-                PrintUtil.info("Create Time: " + DateUtil.fromEpochMillis(metadata.getBackupTime()));
+                PrintUtil.info("时光回溯至远古节点Restored world from a previous backup:");
+                PrintUtil.info("节点名称: " + metadata.getBackupName());
+                PrintUtil.info("创建时间: " + DateUtil.fromEpochMillis(metadata.getBackupTime()));
 
                 // Delete metadata file
                 if (!metadataFile.delete()) {
@@ -86,6 +86,6 @@ public final class KBPluginEvents implements ModInitializer, ServerStartCallback
         } catch (IOException | ClassNotFoundException ignored) {
         }
 
-        PrintUtil.info("KBackup is a free software. Project home: https://github.com/keuin/KBackup-Fabric");
+        PrintUtil.info("KBackup 为免费开源文件. 原作者github链接: https://github.com/keuin/KBackup-Fabric");
     }
 }

@@ -28,13 +28,13 @@ public class RestoreOperation extends InvokableBlockingOperation {
     @Override
     protected boolean blockingContext() {
         // do restore to backupName
-        PrintUtil.broadcast(String.format("Restoring to backup %s ...", configuredBackupMethod.getBackupFileName()));
+        PrintUtil.broadcast(String.format("时光回溯至 %s ...", configuredBackupMethod.getBackupFileName()));
 
-        PrintUtil.debug("Backup file name: " + configuredBackupMethod.getBackupFileName());
+        PrintUtil.debug("时间节点名称: " + configuredBackupMethod.getBackupFileName());
 
-        PrintUtil.msgInfo(context, "Server will shutdown in a few seconds, depending on world size and disk speed, the progress may take from seconds to minutes.", true);
-        PrintUtil.msgInfo(context, "Please do not force the server stop, or the level would be broken.", true);
-        PrintUtil.msgInfo(context, "After it shuts down, please restart the server manually.", true);
+        PrintUtil.msgInfo(context, "服务器即将关闭.", true);
+        PrintUtil.msgInfo(context, "温馨提示!!! 请勿强制关闭服务器, 若造成损失请自行承担.", true);
+        PrintUtil.msgInfo(context, "服务器关闭后, 请自行手动重启服务器.", true);
         final int WAIT_SECONDS = 10;
         for (int i = 0; i < WAIT_SECONDS; ++i) {
             try {
@@ -42,7 +42,7 @@ public class RestoreOperation extends InvokableBlockingOperation {
             } catch (InterruptedException ignored) {
             }
         }
-        PrintUtil.broadcast("Shutting down ...");
+        PrintUtil.broadcast("正在关闭 ...");
         //RestoreWorker worker = new RestoreWorker(server.getThread(), backupFilePath, levelDirectory);
         Thread workerThread = new Thread(new WorkerThread(), "RestoreWorker");
         workerThread.start();
@@ -56,7 +56,7 @@ public class RestoreOperation extends InvokableBlockingOperation {
 
     @Override
     public String toString() {
-        return String.format("restoration from %s", configuredBackupMethod.getBackupFileName());
+        return String.format("时光回溯至 %s", configuredBackupMethod.getBackupFileName());
     }
 
     private class WorkerThread implements Runnable {
@@ -65,7 +65,7 @@ public class RestoreOperation extends InvokableBlockingOperation {
         public void run() {
             try {
                 // Wait server thread die
-                PrintUtil.info("Waiting for the server thread to exit ...");
+                PrintUtil.info("等待服务器线程退出 ...");
                 while (serverThread.isAlive()) {
                     try {
                         serverThread.join();
@@ -75,7 +75,7 @@ public class RestoreOperation extends InvokableBlockingOperation {
 
                 int cnt = 5;
                 do {
-                    PrintUtil.info(String.format("Wait for %d seconds...", cnt));
+                    PrintUtil.info(String.format("等待 %d 秒...", cnt));
                     try{
                         Thread.sleep(1000);
                     } catch (InterruptedException ignored) {
@@ -87,25 +87,23 @@ public class RestoreOperation extends InvokableBlockingOperation {
                 if (configuredBackupMethod.restore()) {
                     long endTime = System.currentTimeMillis();
                     PrintUtil.info(String.format(
-                            "Restore complete! (%.2fs) Please restart the server manually.",
+                            "时光回溯完毕! (%.2fs) 请手动重启服务器.",
                             (endTime - startTime) / 1000.0
                     ));
-                    PrintUtil.info("If you want to restart automatically after restoring, " +
-                            "refer to https://github.com/keuin/KBackup-Fabric/blob/master/README.md");
                     //ServerRestartUtil.forkAndRestart();
                     System.exit(111);
                 } else {
-                    PrintUtil.error("Failed to restore! server will not restart automatically.");
+                    PrintUtil.error("时光回溯失败,服务器将无法自行重启.");
                 }
 
             } catch (SecurityException e) {
                 e.printStackTrace();
-                PrintUtil.error("An exception occurred while restoring.");
+                PrintUtil.error("因某些原因导致回溯未成功 (Security).");
             } catch (IOException e) {
                 e.printStackTrace();
-                PrintUtil.error("Failed to restore due to an unexpected I/O exception.");
+                PrintUtil.error("因某些原因导致回溯未成功 (I/O).");
             }
-            PrintUtil.error("Failed to restore.");
+            PrintUtil.error("回溯失败.");
             System.exit(0); // all failed restoration will eventually go here
         }
     }

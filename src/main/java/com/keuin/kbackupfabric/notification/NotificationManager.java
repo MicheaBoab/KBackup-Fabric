@@ -37,9 +37,9 @@ public class NotificationManager {
         if (MetadataHolder.hasMetadata()) {
             BackupMetadata backup = MetadataHolder.getMetadata();
             notifiable.notify(
-                    new LiteralText("The world has been restored to backup ")
+                    new LiteralText("当前宇宙以回溯至时间节点 ")
                             .append(new LiteralText("[" + backup.getBackupName() + "]").setStyle(new Style().setColor(Formatting.GREEN)))
-                            .append(new LiteralText(" (created at "))
+                            .append(new LiteralText(" (创建于 "))
                             .append(new LiteralText("[" + DateUtil.fromEpochMillis(backup.getBackupTime()) + "]").setStyle(new Style().setColor(Formatting.GREEN)))
                             .append(new LiteralText(")"))
             );

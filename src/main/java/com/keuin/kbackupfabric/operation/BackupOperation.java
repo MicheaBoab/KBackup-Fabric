@@ -39,7 +39,7 @@ public class BackupOperation extends InvokableAsyncBlockingOperation {
 
             // Create backup saving directory
             if (!configuredBackupMethod.touch()) {
-                PrintUtil.msgErr(context, "Failed to create backup save directory. Cannot backup.");
+                PrintUtil.msgErr(context, "创建备份文件路径失败,无法备份.");
                 return;
             }
 
@@ -52,16 +52,16 @@ public class BackupOperation extends InvokableAsyncBlockingOperation {
 
                 // Finish. Print time elapsed and file size
                 long timeElapsedMillis = System.currentTimeMillis() - startTime;
-                String msgText = String.format("Backup finished. Time elapsed: %.2fs. ", timeElapsedMillis / 1000.0) + result.getFeedback();
+                String msgText = String.format("已成功备份, 用时: %.2fs. ", timeElapsedMillis / 1000.0) + result.getFeedback();
                 PrintUtil.msgInfo(context, msgText, true);
             } else {
                 // failed
-                PrintUtil.msgErr(context, "Backup operation failed: " + result.getFeedback());
+                PrintUtil.msgErr(context, "备份工作失败: " + result.getFeedback());
             }
         } catch (SecurityException e) {
-            msgInfo(context, String.format("Failed to create backup saving directory: %s. Failed to backup.", backupSaveDirectory));
+            msgInfo(context, String.format("创建备份文件路径失败,备份未成功.", backupSaveDirectory));
         } catch (IOException e) {
-            msgInfo(context, "Failed to make zip: " + e.getMessage());
+            msgInfo(context, "压缩文件失败: " + e.getMessage());
         }
     }
 
@@ -69,7 +69,7 @@ public class BackupOperation extends InvokableAsyncBlockingOperation {
     protected boolean sync() {
         //// Save world, save old auto-save configs
 
-        PrintUtil.broadcast("Making backup, please wait ...");
+        PrintUtil.broadcast("正在对当前时间节点进行备份,请稍后 ...");
 
         // Get server
         MinecraftServer server = context.getSource().getMinecraftServer();
@@ -82,9 +82,9 @@ public class BackupOperation extends InvokableAsyncBlockingOperation {
         });
 
         // Force to save all player data and worlds
-        PrintUtil.msgInfo(context, "Saving players ...");
+        PrintUtil.msgInfo(context, "正在扫描玩家信息 ...");
         server.getPlayerManager().saveAllPlayerData();
-        PrintUtil.msgInfo(context, "Saving worlds ...");
+        PrintUtil.msgInfo(context, "正在扫描当前宇宙 ...");
         server.save(true, true, true);
 
         // Log start time

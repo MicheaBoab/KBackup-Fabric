@@ -49,7 +49,7 @@ public class DeleteOperation extends InvokableAsyncBlockingOperation {
     private void delete() {
         try {
             MinecraftServer server = context.getSource().getMinecraftServer();
-            PrintUtil.info("Deleting backup file " + this.backupFileName);
+            PrintUtil.info("删除时光节点 " + this.backupFileName);
             File backupFile = new File(getBackupSaveDirectory(server), backupFileName);
             SavedIncrementalBackup incrementalBackup = null;
             if (backupFile.getName().endsWith(".kbi")) {
@@ -57,11 +57,11 @@ public class DeleteOperation extends InvokableAsyncBlockingOperation {
             }
 
             // remove .zip or .kbi file
-            PrintUtil.info("Deleting file " + backupFileName + "...");
+            PrintUtil.info("正在移除节点 " + backupFileName + "...");
             int tryCounter = 0;
             do {
                 if (tryCounter == 5) {
-                    String msg = "Failed to delete file " + backupFileName;
+                    String msg = "移除时间节点失败 " + backupFileName;
                     PrintUtil.error(msg);
                     msgErr(context, msg);
                     return;
@@ -77,20 +77,20 @@ public class DeleteOperation extends InvokableAsyncBlockingOperation {
 
             // If it is an incremental backup, do clean-up
             if (incrementalBackup != null) {
-                PrintUtil.info("Cleaning up...");
+                PrintUtil.info("清理中 ...");
                 IncrementalBackupStorageManager manager =
                         new IncrementalBackupStorageManager(getIncrementalBackupBaseDirectory(server).toPath());
                 Iterable<ObjectCollection2> backups = ObjectCollectionSerializer
                         .fromDirectory(BackupFilesystemUtil
                                 .getBackupSaveDirectory(context.getSource().getMinecraftServer()));
                 int deleted = manager.deleteObjectCollection(incrementalBackup.getObjectCollection(), backups);
-                PrintUtil.info("Deleted " + deleted + " unused file(s).");
+                PrintUtil.info("已移除 " + deleted + " 无用文件.");
             }
 
-            PrintUtil.info("Successfully deleted backup file " + this.backupFileName);
-            msgInfo(context, "Successfully deleted backup file " + this.backupFileName);
+            PrintUtil.info("成功删除时间节点 " + this.backupFileName);
+            msgInfo(context, "成功删除时间节点文件 " + this.backupFileName);
         } catch (IOException e) {
-            LOGGER.severe("Failed to delete backup: " + e);
+            LOGGER.severe("移除时间节点文件失败: " + e);
         }
     }
 }

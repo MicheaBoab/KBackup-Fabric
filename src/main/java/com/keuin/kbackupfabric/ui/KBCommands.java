@@ -72,13 +72,14 @@ public final class KBCommands {
      * @return stat code.
      */
     public static int help(CommandContext<ServerCommandSource> context) {
-        msgInfo(context, "==== KBackup Manual ====");
-        msgInfo(context, "/kb , /kb help - Print help menu.");
-        msgInfo(context, "/kb list - Show all backups.");
-        msgInfo(context, "/kb backup [incremental/zip] [backup_name] - Backup the whole level to backup_name. The default name is current system time.");
-        msgInfo(context, "/kb restore <backup_name> - Delete the whole current level and restore from given backup. /kb restore is identical with /kb list.");
-        msgInfo(context, "/kb confirm - Confirm and start restoring.");
-        msgInfo(context, "/kb cancel - Cancel the restoration to be confirmed. If cancelled, /kb confirm will not run.");
+        msgInfo(context, "======== KBackup Manual ========");
+        msgInfo(context, "/kb , /kb help - 显示帮助菜单.");
+        msgInfo(context, "/kb list - 列出所有存档.");
+        msgInfo(context, "/kb backup [incremental(增量)/zip(压缩)] [文件名] - 备份当前信息至文件. 名字默认为当前系统时间.");
+        msgInfo(context, "/kb restore <文件名> - 时光回溯至选取的时间点.");
+        msgInfo(context, "/kb confirm - 确认并且开始时光回溯.");
+        msgInfo(context, "/kb cancel - 取消时光回溯命令.");
+        msgInfo(context, "=================================");
         return SUCCESS;
     }
 
@@ -93,8 +94,8 @@ public final class KBCommands {
         if (MetadataHolder.hasMetadata() && !notifiedPreviousRestoration) {
             // Output metadata info
             notifiedPreviousRestoration = true;
-            msgStress(context, "Restored from backup "
-                    + MetadataHolder.getMetadata().getBackupName() + " (created at " +
+            msgStress(context, "时间回溯至 "
+                    + MetadataHolder.getMetadata().getBackupName() + " (创建于 " +
                     DateUtil.fromEpochMillis(MetadataHolder.getMetadata().getBackupTime())
                     + ")");
         }
@@ -143,9 +144,9 @@ public final class KBCommands {
         updateBackupList();
         synchronized (backupList) {
             if (backupList.isEmpty())
-                msgInfo(context, "There is no backup available. To make a new backup, use `/kb backup`.");
+                msgInfo(context, "当前无已储存时间节点,如需生成新节点,请使用 `/kb backup`.");
             else
-                msgInfo(context, "Available backups:");
+                msgInfo(context, "当前可使用节点:");
             for (int i = backupList.size() - 1; i >= 0; --i) {
                 BackupInfo info = backupList.get(i);
                 printBackupInfo(context, info, i);
@@ -200,7 +201,7 @@ public final class KBCommands {
         if (customBackupName.matches("[0-9]*")) {
             // Numeric param is not allowed
             customBackupName = String.format("a%s", customBackupName);
-            msgWarn(context, String.format("Pure numeric name is not allowed. Renaming to %s", customBackupName));
+            msgWarn(context, String.format("不支持使用纯数字名称. 已自动修改为 %s", customBackupName));
         }
         return doBackup(context, customBackupName, false);
     }
@@ -220,7 +221,7 @@ public final class KBCommands {
         if (customBackupName.matches("[0-9]*")) {
             // Numeric param is not allowed
             customBackupName = String.format("a%s", customBackupName);
-            msgWarn(context, String.format("Pure numeric name is not allowed. Renaming to %s", customBackupName));
+            msgWarn(context, String.format("不支持使用纯数字名称. 已自动修改为 %s", customBackupName));
         }
         return doBackup(context, customBackupName, true);
     }
@@ -263,7 +264,7 @@ public final class KBCommands {
         // Validate backupName
         if (!isBackupFileExists(backupFileName, server)) {
             // Invalid backupName
-            msgErr(context, "Invalid backup name! Please check your input. The list index number is also valid.");
+            msgErr(context, "警告!!! 无效名称, 请检查是否输入正确.");
             return FAILED;
         }
 
@@ -271,7 +272,7 @@ public final class KBCommands {
         //pendingOperation = AbstractConfirmableOperation.createDeleteOperation(context, backupName);
         pendingOperation = new DeleteOperation(context, backupFileName);
 
-        msgWarn(context, String.format("DELETION WARNING: The deletion is irreversible! You will lose the backup %s permanently. Use /kb confirm to start or /kb cancel to abort.", backupFileName), true);
+        msgWarn(context, String.format("警告!!! 此操作是不可逆的, 您将会用永久失去此时间节点. 请使用/kb cancle 终止 或 /kb confirm 确认请求.", backupFileName), true);
         return SUCCESS;
     }
 
@@ -296,7 +297,7 @@ public final class KBCommands {
             // Validate backupName
             if (!isBackupFileExists(backupFileName, server)) {
                 // Invalid backupName
-                msgErr(context, "Invalid backup name! Please check your input. The list index number is also valid.", false);
+                msgErr(context, "警告!!! 无效名称, 请检查是否输入正确.", false);
                 return FAILED;
             }
 
@@ -318,10 +319,10 @@ public final class KBCommands {
 //        getBackupSaveDirectory(server).getAbsolutePath(), getLevelPath(server), backupFileName
             pendingOperation = new RestoreOperation(context, method);
 
-            msgWarn(context, String.format("RESET WARNING: You will LOSE YOUR CURRENT WORLD PERMANENTLY! The worlds will be replaced with backup %s . Use /kb confirm to start or /kb cancel to abort.", backupFileName), true);
+            msgWarn(context, String.format("警告!!! 此操作是不可逆的, 您将时光回溯至 %s 并且失去当前世界 请使用/kb cancle 终止 或 /kb confirm 确认请求.", backupFileName), true);
             return SUCCESS;
         } catch (IOException e) {
-            msgErr(context, String.format("An I/O exception occurred while making backup: %s", e));
+            msgErr(context, String.format("创建存档时出现错误 (I/O): %s", e));
         }
         return FAILED;
     }
@@ -336,12 +337,12 @@ public final class KBCommands {
             final char[] ILLEGAL_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':'};
             for (char c : ILLEGAL_CHARACTERS) {
                 if (customBackupName.contains(String.valueOf(c))) {
-                    msgErr(context, String.format("Name cannot contain special character \"%c\".", c));
+                    msgErr(context, String.format("文件名请勿出现特殊符号 \"%c\".", c));
                     return FAILED;
                 }
             }
 
-            PrintUtil.info("Start backup...");
+            PrintUtil.info("开始存档 ...");
 
             // configure backup method
             MinecraftServer server = context.getSource().getMinecraftServer();
@@ -361,11 +362,11 @@ public final class KBCommands {
             if (operation.invoke()) {
                 return SUCCESS;
             } else if (operation.isBlocked()) {
-                msgWarn(context, "Another task is running, cannot issue new backup at once.");
+                msgWarn(context, "请勿重复操作, 正在努力完整上一个存档任务.");
                 return FAILED;
             }
         } catch (IOException e) {
-            msgErr(context, String.format("An I/O exception occurred while making backup: %s", e));
+            msgErr(context, String.format("创建存档时出现错误 (I/O): %s", e));
         }
         return FAILED;
     }
@@ -378,7 +379,7 @@ public final class KBCommands {
      */
     public static int confirm(CommandContext<ServerCommandSource> context) {
         if (pendingOperation == null) {
-            msgWarn(context, "Nothing to confirm.");
+            msgWarn(context, "当前无需要确认的请求.");
             return FAILED;
         }
 
@@ -401,11 +402,11 @@ public final class KBCommands {
      */
     public static int cancel(CommandContext<ServerCommandSource> context) {
         if (pendingOperation != null) {
-            PrintUtil.msgInfo(context, String.format("The %s has been cancelled.", pendingOperation.toString()), true);
+            PrintUtil.msgInfo(context, String.format(" %s 请求已被终止.", pendingOperation.toString()), true);
             pendingOperation = null;
             return SUCCESS;
         } else {
-            msgErr(context, "Nothing to cancel.");
+            msgErr(context, "当前无正在处理的请求.");
             return FAILED;
         }
     }
@@ -441,14 +442,14 @@ public final class KBCommands {
             synchronized (backupList) {
                 if (!backupList.isEmpty()) {
                     BackupInfo info = backupList.get(0);
-                    msgInfo(context, "The most recent backup:");
+                    msgInfo(context, "最新节点:");
                     printBackupInfo(context, info, 0);
                 } else {
-                    msgInfo(context, "There is no backup available.");
+                    msgInfo(context, "当前无可用时间节点.");
                 }
             }
         } catch (SecurityException ignored) {
-            msgErr(context, "Failed to read file.");
+            msgErr(context, "读取文件失败.");
             return FAILED;
         }
         return SUCCESS;

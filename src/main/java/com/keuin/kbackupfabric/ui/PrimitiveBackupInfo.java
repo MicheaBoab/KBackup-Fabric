@@ -30,7 +30,7 @@ public class PrimitiveBackupInfo implements BackupInfo {
         this.fileName = fileName;
         BackupFileNameEncoder.BackupBasicInformation info = PrimitiveBackupFileNameEncoder.INSTANCE.decode(fileName);
         if (info == null)
-            throw new IllegalArgumentException("Invalid file name.");
+            throw new IllegalArgumentException("文件名无效.");
         this.name = info.customName;
         this.creationTime = info.time;
         this.sizeBytes = sizeBytes;

@@ -3,13 +3,14 @@
   "id": "kbackupfabric",
   "version": "${version}",
   "name": "KBackup Fabric",
-  "description": "A simple backup mod for Minecraft fabric server",
+  "description": "A simple backup mod for Minecraft fabric server 4N7修改自用",
   "authors": [
-    "Keuin"
+    "Keuin",
+    "MicheaBoab"
   ],
   "contact": {
-    "homepage": "https://lab.keuin.cc/kbackup",
-    "sources": "https://github.com/keuin"
+    "homepage": "https://github.com/keuin",
+    "sources": "https://github.com/micheaboab"
   },
   "license": "GPL V3",
   "icon": "assets/kbackupfabric/icon.png",
